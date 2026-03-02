@@ -69,6 +69,41 @@ export interface Notes {
   categories: { [categoryId: string]: string }; // Notes per category
 }
 
+export interface Habit {
+  id: string;
+  name: string;
+  icon: string;
+  frequency: 'daily' | 'weekly'; // how often to perform
+  targetDays?: number[]; // 0-6 (Sun-Sat) for weekly habits
+  streak: number; // current streak in days
+  longestStreak: number;
+  completions: string[]; // ISO date strings 'YYYY-MM-DD' when completed
+  created: Date;
+  color: string;
+  reminderTime?: string; // HH:MM format, optional reminder time
+}
+
+export interface Reminder {
+  id: string;
+  title: string;
+  time: string; // HH:MM
+  days: number[]; // 0-6 (Sun-Sat), empty = every day
+  enabled: boolean;
+  habitId?: string; // optional link to a habit
+  created: Date;
+}
+
+export interface Workspace {
+  id: string;
+  name: string;
+  description?: string;
+  icon: string;
+  urls: string[]; // URLs to open when activating workspace
+  taskIds?: string[]; // linked task IDs
+  color: string;
+  created: Date;
+}
+
 export interface UserData {
   categories: Category[];
   tasks: Task[];
@@ -76,6 +111,9 @@ export interface UserData {
   pomodoroSessions: PomodoroSession[];
   timeBlocks: TimeBlock[]; // Weekly schedule templates
   notes?: Notes; // User notes
+  habits?: Habit[];
+  reminders?: Reminder[];
+  workspaces?: Workspace[];
   settings: {
     workDuration: number; // minutes
     shortBreakDuration: number; // minutes

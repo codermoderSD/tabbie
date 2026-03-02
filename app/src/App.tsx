@@ -26,16 +26,23 @@ import PomodoroPage from "@/components/PomodoroPage"
 import NotesPage from "@/components/NotesPage"
 import TabbiePage from "@/components/TabbiePage"
 import SchedulePage from "@/components/SchedulePage"
+import HabitsPage from "@/components/HabitsPage"
+import WorkspacesPage from "@/components/WorkspacesPage"
+import StatsPage from "@/components/StatsPage"
+import ToolsPage from "@/components/ToolsPage"
+import InsightsPage from "@/components/InsightsPage"
 import OnboardingModal from "@/components/OnboardingModal"
 import { updateSettings } from "@/utils/storage"
 
 const ONBOARDING_STORAGE_KEY = 'tabbie_onboarding_completed';
 const ONBOARDING_FORCE_SHOW_KEY = 'tabbie_onboarding_force_show';
 
+type AppPage = 'dashboard' | 'tasks' | 'reminders' | 'events' | 'notifications' | 'pomodoro' | 'notes' | 'activity' | 'timetracking' | 'settings' | 'tabbie' | 'schedule' | 'stats' | 'habits' | 'workspaces' | 'tools' | 'insights' | 'calendar' | 'yourtabbie';
+
 function AppContent() {
   const { userData } = useTodo();
   const { setThemeMode } = useDarkMode();
-  const [currentPage, setCurrentPage] = React.useState<'dashboard' | 'tasks' | 'reminders' | 'events' | 'notifications' | 'pomodoro' | 'notes' | 'activity' | 'timetracking' | 'settings' | 'tabbie' | 'schedule'>('dashboard');
+  const [currentPage, setCurrentPage] = React.useState<AppPage>('dashboard');
   const [currentView, setCurrentView] = React.useState<'today' | 'tomorrow' | 'next7days' | 'completed' | string>('next7days');
   const [showOnboarding, setShowOnboarding] = React.useState(false);
 
@@ -88,14 +95,30 @@ function AppContent() {
     window.location.reload();
   };
 
+  // Typed page change handler (avoids Dispatch overload mismatch with child component prop types)
+  const handlePageChange = React.useCallback((page: AppPage) => setCurrentPage(page), []);
 
-
-
-
-
-
-
-
+  const pageTitles: Record<AppPage, string> = {
+    dashboard: 'Dashboard',
+    tasks: 'Tasks',
+    schedule: 'Schedule',
+    events: 'Events',
+    pomodoro: 'Pomodoro Timer',
+    notes: 'Notes',
+    settings: 'Settings',
+    tabbie: 'Tabbie',
+    stats: 'Stats',
+    habits: 'Habits & Reminders',
+    workspaces: 'Workspaces',
+    tools: 'Tools',
+    insights: 'Smart Insights',
+    reminders: 'Reminders',
+    notifications: 'Notifications',
+    activity: 'Activity',
+    timetracking: 'Time Tracking',
+    calendar: 'Calendar',
+    yourtabbie: 'Your Tabbie',
+  };
 
   return (
     <>
@@ -108,7 +131,7 @@ function AppContent() {
         <Sidebar>
           <CategorySidebar
             currentPage={currentPage}
-            onPageChange={setCurrentPage}
+            onPageChange={handlePageChange}
             currentView={currentView}
             onViewChange={setCurrentView}
             theme={theme}
@@ -128,15 +151,7 @@ function AppContent() {
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="hidden md:block" />
                   <BreadcrumbItem>
-                    <BreadcrumbPage>
-                      {currentPage === 'dashboard' ? 'Dashboard' :
-                        currentPage === 'tasks' ? 'Tasks' :
-                          currentPage === 'schedule' ? 'Schedule' :
-                            currentPage === 'events' ? 'Events' :
-                              currentPage === 'pomodoro' ? 'Pomodoro Timer' :
-                                currentPage === 'settings' ? 'Settings' :
-                                  currentPage === 'tabbie' ? 'Tabbie' : 'Dashboard'}
-                    </BreadcrumbPage>
+                    <BreadcrumbPage>{pageTitles[currentPage] ?? 'Dashboard'}</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
@@ -146,35 +161,45 @@ function AppContent() {
           <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
             {currentPage === 'dashboard' ? (
               <DashboardPage
-                onNavigateToActivity={() => setCurrentPage('activity')}
-                onPageChange={setCurrentPage}
+                onNavigateToActivity={() => handlePageChange('activity')}
+                onPageChange={handlePageChange as (page: Parameters<typeof handlePageChange>[0]) => void}
                 theme={theme}
               />
             ) : currentPage === 'tasks' ? (
               <TasksPage
                 currentView={currentView}
                 onViewChange={setCurrentView}
-                onPageChange={setCurrentPage}
+                onPageChange={handlePageChange as (page: Parameters<typeof handlePageChange>[0]) => void}
                 theme={theme}
               />
             ) : currentPage === 'schedule' ? (
               <SchedulePage
                 theme={theme}
-                onNavigateToPomodoro={() => setCurrentPage('pomodoro')}
+                onNavigateToPomodoro={() => handlePageChange('pomodoro')}
               />
 
             ) : currentPage === 'events' ? (
               <EventsPage theme={theme} />
 
             ) : currentPage === 'pomodoro' ? (
-              <PomodoroPage onPageChange={setCurrentPage} theme={theme} />
+              <PomodoroPage onPageChange={handlePageChange as (page: Parameters<typeof handlePageChange>[0]) => void} theme={theme} />
             ) : currentPage === 'notes' ? (
-              <NotesPage onPageChange={setCurrentPage} theme={theme} />
+              <NotesPage onPageChange={handlePageChange as (page: Parameters<typeof handlePageChange>[0]) => void} theme={theme} />
 
             ) : currentPage === 'settings' ? (
-              <SettingsPage onPageChange={setCurrentPage} theme={theme} />
+              <SettingsPage onPageChange={handlePageChange as (page: Parameters<typeof handlePageChange>[0]) => void} theme={theme} />
             ) : currentPage === 'tabbie' ? (
-              <TabbiePage onPageChange={setCurrentPage} theme={theme} />
+              <TabbiePage onPageChange={handlePageChange as (page: Parameters<typeof handlePageChange>[0]) => void} theme={theme} />
+            ) : currentPage === 'stats' ? (
+              <StatsPage theme={theme} />
+            ) : currentPage === 'habits' ? (
+              <HabitsPage theme={theme} />
+            ) : currentPage === 'workspaces' ? (
+              <WorkspacesPage theme={theme} />
+            ) : currentPage === 'tools' ? (
+              <ToolsPage theme={theme} />
+            ) : currentPage === 'insights' ? (
+              <InsightsPage theme={theme} />
             ) : (
               <>
 

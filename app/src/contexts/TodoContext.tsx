@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import type { UserData, Category, Task, PomodoroSession, CompletedTask, TimeBlock } from '@/types/todo';
+import type { UserData, Category, Task, PomodoroSession, CompletedTask, TimeBlock, Habit, Reminder, Workspace } from '@/types/todo';
 import { DEFAULT_CATEGORIES } from '@/types/todo';
 import { loadUserData, saveUserData, generateId, loadPomodoroState, savePomodoroState, clearPomodoroState, type PomodoroState } from '@/utils/storage';
 import { computeTimeLeftSeconds, sanitizePausedSeconds } from '@/utils/pomodoroTime';
@@ -61,6 +61,22 @@ interface TodoContextType {
   addTimeBlock: (categoryId: string, dayOfWeek: number, startTime: number, endTime: number, taskId?: string, label?: string, isBusy?: boolean, date?: string) => void;
   updateTimeBlock: (id: string, updates: Partial<TimeBlock>) => void;
   deleteTimeBlock: (id: string) => void;
+
+  // Habit methods
+  addHabit: (name: string, icon: string, color: string, frequency: 'daily' | 'weekly', targetDays?: number[], reminderTime?: string) => void;
+  updateHabit: (habitId: string, updates: Partial<Habit>) => void;
+  deleteHabit: (habitId: string) => void;
+  toggleHabitCompletion: (habitId: string, date: string) => void;
+
+  // Reminder methods
+  addReminder: (title: string, time: string, days: number[], habitId?: string) => void;
+  updateReminder: (reminderId: string, updates: Partial<Reminder>) => void;
+  deleteReminder: (reminderId: string) => void;
+
+  // Workspace methods
+  addWorkspace: (name: string, icon: string, color: string, urls: string[], description?: string) => void;
+  updateWorkspace: (workspaceId: string, updates: Partial<Workspace>) => void;
+  deleteWorkspace: (workspaceId: string) => void;
 }
 
 const TodoContext = createContext<TodoContextType | undefined>(undefined);
@@ -1437,6 +1453,119 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }));
   };
 
+  // ── Habit methods ──────────────────────────────────────────────
+  const addHabit = (name: string, icon: string, color: string, frequency: 'daily' | 'weekly', targetDays?: number[], reminderTime?: string) => {
+    const habit: Habit = {
+      id: generateId(),
+      name,
+      icon,
+      color,
+      frequency,
+      targetDays,
+      streak: 0,
+      longestStreak: 0,
+      completions: [],
+      created: new Date(),
+      reminderTime,
+    };
+    setUserData(prev => ({ ...prev, habits: [...(prev.habits || []), habit] }));
+  };
+
+  const updateHabit = (habitId: string, updates: Partial<Habit>) => {
+    setUserData(prev => ({
+      ...prev,
+      habits: (prev.habits || []).map(h => h.id === habitId ? { ...h, ...updates } : h),
+    }));
+  };
+
+  const deleteHabit = (habitId: string) => {
+    setUserData(prev => ({
+      ...prev,
+      habits: (prev.habits || []).filter(h => h.id !== habitId),
+    }));
+  };
+
+  const toggleHabitCompletion = (habitId: string, date: string) => {
+    setUserData(prev => {
+      const habits = (prev.habits || []).map(h => {
+        if (h.id !== habitId) return h;
+        const already = h.completions.includes(date);
+        const completions = already
+          ? h.completions.filter(d => d !== date)
+          : [...h.completions, date];
+        // Recalculate streak
+        const sorted = [...completions].sort();
+        let streak = 0;
+        const today = new Date().toISOString().slice(0, 10);
+        let check = today;
+        while (sorted.includes(check)) {
+          streak++;
+          const d = new Date(check);
+          d.setDate(d.getDate() - 1);
+          check = d.toISOString().slice(0, 10);
+        }
+        return { ...h, completions, streak, longestStreak: Math.max(h.longestStreak, streak) };
+      });
+      return { ...prev, habits };
+    });
+  };
+
+  // ── Reminder methods ───────────────────────────────────────────
+  const addReminder = (title: string, time: string, days: number[], habitId?: string) => {
+    const reminder: Reminder = {
+      id: generateId(),
+      title,
+      time,
+      days,
+      enabled: true,
+      habitId,
+      created: new Date(),
+    };
+    setUserData(prev => ({ ...prev, reminders: [...(prev.reminders || []), reminder] }));
+  };
+
+  const updateReminder = (reminderId: string, updates: Partial<Reminder>) => {
+    setUserData(prev => ({
+      ...prev,
+      reminders: (prev.reminders || []).map(r => r.id === reminderId ? { ...r, ...updates } : r),
+    }));
+  };
+
+  const deleteReminder = (reminderId: string) => {
+    setUserData(prev => ({
+      ...prev,
+      reminders: (prev.reminders || []).filter(r => r.id !== reminderId),
+    }));
+  };
+
+  // ── Workspace methods ──────────────────────────────────────────
+  const addWorkspace = (name: string, icon: string, color: string, urls: string[], description?: string) => {
+    const workspace: Workspace = {
+      id: generateId(),
+      name,
+      icon,
+      color,
+      urls,
+      description,
+      created: new Date(),
+    };
+    setUserData(prev => ({ ...prev, workspaces: [...(prev.workspaces || []), workspace] }));
+  };
+
+  const updateWorkspace = (workspaceId: string, updates: Partial<Workspace>) => {
+    setUserData(prev => ({
+      ...prev,
+      workspaces: (prev.workspaces || []).map(w => w.id === workspaceId ? { ...w, ...updates } : w),
+    }));
+  };
+
+  const deleteWorkspace = (workspaceId: string) => {
+    setUserData(prev => ({
+      ...prev,
+      workspaces: (prev.workspaces || []).filter(w => w.id !== workspaceId),
+    }));
+  };
+
   const value: TodoContextType = {
     userData,
     selectedCategoryId,
@@ -1474,6 +1603,19 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({ children
     addTimeBlock,
     updateTimeBlock,
     deleteTimeBlock,
+
+    addHabit,
+    updateHabit,
+    deleteHabit,
+    toggleHabitCompletion,
+
+    addReminder,
+    updateReminder,
+    deleteReminder,
+
+    addWorkspace,
+    updateWorkspace,
+    deleteWorkspace,
   };
 
   return <TodoContext.Provider value={value} > {children}</TodoContext.Provider >;
