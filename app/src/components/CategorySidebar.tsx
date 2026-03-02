@@ -3,7 +3,7 @@ import {
   Plus, Settings2, X, Clock, Monitor, CheckSquare, BarChart3,
   Calendar, Zap, Activity, ChevronDown, ChevronRight,
   Palette, Play, Pause, Square, Coffee, SkipForward,
-  BookOpen, Bot
+  BookOpen, Bot, BarChart2, RefreshCw, Wrench, Sparkles, MessageCircle, Layers
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,8 +33,8 @@ import { useTodo } from '@/contexts/TodoContext';
 import { DarkModeToggle } from '@/components/ui/dark-mode-toggle';
 
 interface CategorySidebarProps {
-  currentPage: 'dashboard' | 'tasks' | 'reminders' | 'events' | 'notifications' | 'pomodoro' | 'notes' | 'activity' | 'timetracking' | 'settings' | 'tabbie' | 'schedule';
-  onPageChange: (page: 'dashboard' | 'tasks' | 'reminders' | 'events' | 'notifications' | 'pomodoro' | 'notes' | 'activity' | 'timetracking' | 'settings' | 'tabbie' | 'schedule') => void;
+  currentPage: 'dashboard' | 'tasks' | 'reminders' | 'events' | 'notifications' | 'pomodoro' | 'notes' | 'activity' | 'timetracking' | 'settings' | 'tabbie' | 'schedule' | 'stats' | 'habits' | 'workspaces' | 'tools' | 'insights' | 'calendar' | 'yourtabbie';
+  onPageChange: (page: 'dashboard' | 'tasks' | 'reminders' | 'events' | 'notifications' | 'pomodoro' | 'notes' | 'activity' | 'timetracking' | 'settings' | 'tabbie' | 'schedule' | 'stats' | 'habits' | 'workspaces' | 'tools' | 'insights' | 'calendar' | 'yourtabbie') => void;
   currentView?: 'today' | 'tomorrow' | 'next7days' | 'completed' | string; // Allow any string for dynamic category IDs
   onViewChange?: (view: 'today' | 'tomorrow' | 'next7days' | 'completed' | string) => void; // Allow any string for dynamic category IDs
   activityStats?: {
@@ -331,6 +331,103 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
               >
                 <Bot className="w-4 h-4" />
                 <span>Tabbie</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+
+        {/* Productivity Group */}
+        <SidebarGroup>
+          <SidebarGroupLabel className={theme === 'retro' ? "text-xs font-black uppercase tracking-wider text-foreground mb-2" : ""}>Productivity</SidebarGroupLabel>
+          <SidebarMenu className={theme === 'retro' ? "gap-3" : ""}>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => onPageChange('stats')}
+                isActive={currentPage === 'stats'}
+                className={
+                  theme === 'retro' && currentPage === 'stats'
+                    ? "h-12 px-4 !bg-[#c4f4ff] dark:!bg-cyan-900/30 text-gray-900 dark:text-gray-100 border-2 border-black dark:border-gray-600 rounded-xl shadow-[4px_4px_0_0_rgba(0,0,0,0.2)] dark:shadow-[4px_4px_0_0_rgba(0,0,0,0.4)] font-black"
+                    : theme === 'retro' ? "h-12 px-4 border-2 border-transparent hover:bg-[#c4f4ff]/60 dark:hover:bg-cyan-900/30 hover:text-gray-900 dark:hover:text-gray-100 hover:border-black dark:hover:border-gray-600 rounded-xl font-bold transition-all" : ""
+                }
+              >
+                <BarChart2 className="w-4 h-4" />
+                <span>Stats</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => onPageChange('habits')}
+                isActive={currentPage === 'habits'}
+                className={
+                  theme === 'retro' && currentPage === 'habits'
+                    ? "h-12 px-4 !bg-[#d4ffd4] dark:!bg-green-900/30 text-gray-900 dark:text-gray-100 border-2 border-black dark:border-gray-600 rounded-xl shadow-[4px_4px_0_0_rgba(0,0,0,0.2)] dark:shadow-[4px_4px_0_0_rgba(0,0,0,0.4)] font-black"
+                    : theme === 'retro' ? "h-12 px-4 border-2 border-transparent hover:bg-[#d4ffd4]/60 dark:hover:bg-green-900/30 hover:text-gray-900 dark:hover:text-gray-100 hover:border-black dark:hover:border-gray-600 rounded-xl font-bold transition-all" : ""
+                }
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span>Habits</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => onPageChange('workspaces')}
+                isActive={currentPage === 'workspaces'}
+                className={
+                  theme === 'retro' && currentPage === 'workspaces'
+                    ? "h-12 px-4 !bg-[#e8d4ff] dark:!bg-purple-900/30 text-gray-900 dark:text-gray-100 border-2 border-black dark:border-gray-600 rounded-xl shadow-[4px_4px_0_0_rgba(0,0,0,0.2)] dark:shadow-[4px_4px_0_0_rgba(0,0,0,0.4)] font-black"
+                    : theme === 'retro' ? "h-12 px-4 border-2 border-transparent hover:bg-[#e8d4ff]/60 dark:hover:bg-purple-900/30 hover:text-gray-900 dark:hover:text-gray-100 hover:border-black dark:hover:border-gray-600 rounded-xl font-bold transition-all" : ""
+                }
+              >
+                <Layers className="w-4 h-4" />
+                <span>Workspaces</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => onPageChange('tools')}
+                isActive={currentPage === 'tools'}
+                className={
+                  theme === 'retro' && currentPage === 'tools'
+                    ? "h-12 px-4 !bg-[#ffe4c4] dark:!bg-amber-900/30 text-gray-900 dark:text-gray-100 border-2 border-black dark:border-gray-600 rounded-xl shadow-[4px_4px_0_0_rgba(0,0,0,0.2)] dark:shadow-[4px_4px_0_0_rgba(0,0,0,0.4)] font-black"
+                    : theme === 'retro' ? "h-12 px-4 border-2 border-transparent hover:bg-[#ffe4c4]/60 dark:hover:bg-amber-900/30 hover:text-gray-900 dark:hover:text-gray-100 hover:border-black dark:hover:border-gray-600 rounded-xl font-bold transition-all" : ""
+                }
+              >
+                <Wrench className="w-4 h-4" />
+                <span>Tools</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => onPageChange('insights')}
+                isActive={currentPage === 'insights'}
+                className={
+                  theme === 'retro' && currentPage === 'insights'
+                    ? "h-12 px-4 !bg-[#ffd4f4] dark:!bg-fuchsia-900/30 text-gray-900 dark:text-gray-100 border-2 border-black dark:border-gray-600 rounded-xl shadow-[4px_4px_0_0_rgba(0,0,0,0.2)] dark:shadow-[4px_4px_0_0_rgba(0,0,0,0.4)] font-black"
+                    : theme === 'retro' ? "h-12 px-4 border-2 border-transparent hover:bg-[#ffd4f4]/60 dark:hover:bg-fuchsia-900/30 hover:text-gray-900 dark:hover:text-gray-100 hover:border-black dark:hover:border-gray-600 rounded-xl font-bold transition-all" : ""
+                }
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>Smart Insights</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            {/* Talk — coming soon */}
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                disabled
+                className={
+                  theme === 'retro'
+                    ? "h-12 px-4 opacity-50 cursor-not-allowed border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl font-bold"
+                    : "opacity-50 cursor-not-allowed"
+                }
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>Talk</span>
+                <span className="ml-auto text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded font-medium">Soon</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

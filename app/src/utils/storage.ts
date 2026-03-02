@@ -1,4 +1,4 @@
-import type { UserData, Category, Task, PomodoroSession, CompletedTask } from '@/types/todo';
+import type { UserData, Category, Task, PomodoroSession, CompletedTask, Habit, Reminder, Workspace } from '@/types/todo';
 import { DEFAULT_CATEGORIES, DEFAULT_SETTINGS } from '@/types/todo';
 import { computeTimeLeftSeconds, sanitizePausedSeconds } from '@/utils/pomodoroTime';
 
@@ -168,6 +168,9 @@ export const loadUserData = (): UserData => {
         notes: parsed.notes || { global: '', categories: {} },
         settings: { ...DEFAULT_SETTINGS, ...parsed.settings },
         timeBlocks: parsed.timeBlocks || [],
+        habits: parsed.habits || [],
+        reminders: parsed.reminders || [],
+        workspaces: parsed.workspaces || [],
       };
     }
   } catch (error) {
@@ -182,6 +185,10 @@ export const loadUserData = (): UserData => {
     pomodoroSessions: [],
     notes: { global: '', categories: {} },
     settings: DEFAULT_SETTINGS,
+    timeBlocks: [],
+    habits: [],
+    reminders: [],
+    workspaces: [],
   };
 };
 
@@ -274,6 +281,54 @@ export const saveCompletedTask = (completedTask: CompletedTask): void => {
     userData.completedTasks.push(completedTask);
   }
 
+  saveUserData(userData);
+};
+
+// Habit helpers
+export const saveHabit = (habit: Habit): void => {
+  const userData = loadUserData();
+  if (!userData.habits) userData.habits = [];
+  const idx = userData.habits.findIndex(h => h.id === habit.id);
+  if (idx >= 0) userData.habits[idx] = habit;
+  else userData.habits.push(habit);
+  saveUserData(userData);
+};
+
+export const deleteHabit = (habitId: string): void => {
+  const userData = loadUserData();
+  userData.habits = (userData.habits || []).filter(h => h.id !== habitId);
+  saveUserData(userData);
+};
+
+// Reminder helpers
+export const saveReminder = (reminder: Reminder): void => {
+  const userData = loadUserData();
+  if (!userData.reminders) userData.reminders = [];
+  const idx = userData.reminders.findIndex(r => r.id === reminder.id);
+  if (idx >= 0) userData.reminders[idx] = reminder;
+  else userData.reminders.push(reminder);
+  saveUserData(userData);
+};
+
+export const deleteReminder = (reminderId: string): void => {
+  const userData = loadUserData();
+  userData.reminders = (userData.reminders || []).filter(r => r.id !== reminderId);
+  saveUserData(userData);
+};
+
+// Workspace helpers
+export const saveWorkspace = (workspace: Workspace): void => {
+  const userData = loadUserData();
+  if (!userData.workspaces) userData.workspaces = [];
+  const idx = userData.workspaces.findIndex(w => w.id === workspace.id);
+  if (idx >= 0) userData.workspaces[idx] = workspace;
+  else userData.workspaces.push(workspace);
+  saveUserData(userData);
+};
+
+export const deleteWorkspace = (workspaceId: string): void => {
+  const userData = loadUserData();
+  userData.workspaces = (userData.workspaces || []).filter(w => w.id !== workspaceId);
   saveUserData(userData);
 };
 
